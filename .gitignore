@@ -6,6 +6,17 @@ __pycache__/
 # C extensions
 *.so
 
+# Ignore all CSV files recursively
+*.csv
+
+servicetag/
+
+# Ignore all PowerPoint files recursively
+*.pptx
+
+# But keep folders (Git ignores only files, not empty folders by default)
+!*/  # Keeps the folder structure
+
 # Distribution / packaging
 .Python
 build/
