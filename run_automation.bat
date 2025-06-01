@@ -7,4 +7,7 @@ call pyEnv310\Scripts\activate.bat
 REM Run the automation
 python src\utils\automation_trigger.py
 
+REM Open the generated PowerPoint file
+start "" "data\reports\Service_Report.pptx"
+
 pause

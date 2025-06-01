@@ -124,6 +124,33 @@ def generate_monthly_progress(csv_file, output_path):
     plt.close()
     print(f"✅ Monthly progress chart saved to {line_path}")
 
+def generate_total_donut(data, output_path):
+    total_inc = total_ritm = 0
+
+    for stats in data.values():
+        total_inc += stats.get("INC_count", 0)
+        total_ritm += stats.get("RITM_count", 0)
+
+    total_all = total_inc + total_ritm if (total_inc + total_ritm) else 1
+    inc_pct = round((total_inc / total_all) * 100, 1)
+    ritm_pct = round((total_ritm / total_all) * 100, 1)
+
+    labels = [f"RITM - {total_ritm} ({ritm_pct}%)", f"INC - {total_inc} ({inc_pct}%)"]
+    sizes = [total_ritm, total_inc]
+    colors = ['#2ecc71', '#e67e22']
+
+    fig, ax = plt.subplots(figsize=(3.5, 3.5))
+    wedges, texts = ax.pie(sizes, labels=labels, startangle=90,
+                           colors=colors, wedgeprops={'width': 0.4})
+
+    plt.text(0, 0, f"{total_all}\nTotal", ha='center', va='center', fontsize=12, weight='bold')
+    plt.title("Total Tickets: INC vs RITM", fontsize=10)
+    
+    donut_path = output_path / "donut_total.png"
+    plt.savefig(donut_path, bbox_inches='tight')
+    plt.close()
+    print(f"✅ Donut chart saved to {donut_path}")
+
 def generate_charts(json_path: str, output_dir: str, csv_path: str):
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -133,6 +160,7 @@ def generate_charts(json_path: str, output_dir: str, csv_path: str):
     generate_volume_bar_chart(data, output_path)
     generate_urgency_heatmap(data, output_path)
     generate_monthly_progress(csv_path, output_path)
+    generate_total_donut(data, output_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate advanced service charts")
