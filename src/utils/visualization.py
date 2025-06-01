@@ -7,7 +7,6 @@ from pptx.util import Inches, Pt
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.dml.color import RGBColor
 
-
 def map_service_name(name):
     mapping = {
         "AUTO": "Terminal Automation",
@@ -18,7 +17,6 @@ def map_service_name(name):
         "HV": "Horizon View"
     }
     return mapping.get(name.upper(), name)
-
 
 def add_summary_slide(prs, data, overall):
     slide_layout = prs.slide_layouts[6]  # Blank slide
@@ -56,7 +54,6 @@ def add_summary_slide(prs, data, overall):
         table.cell(i + 1, 2).text = str(ritm)
         table.cell(i + 1, 3).text = str(total)
 
-    # Total row
     table.cell(10, 0).text = "Total"
     table.cell(10, 1).text = str(total_inc)
     table.cell(10, 2).text = str(total_ritm)
@@ -109,6 +106,27 @@ def add_summary_slide(prs, data, overall):
     textbox.text_frame.paragraphs[0].font.size = Pt(14)
     textbox.text_frame.paragraphs[0].font.bold = True
 
+def add_insights_slide(prs, summary):
+    slide_layout = prs.slide_layouts[5]  # Title Only
+    slide = prs.slides.add_slide(slide_layout)
+    slide.shapes.title.text = "Key Weekly Insights"
+
+    comparison = summary.get("comparison", {})
+    left = Inches(0.5)
+    top = Inches(1.5)
+    width = Inches(8.5)
+    height = Inches(5.5)
+
+    textbox = slide.shapes.add_textbox(left, top, width, height)
+    tf = textbox.text_frame
+    tf.word_wrap = True
+
+    for line in comparison.values():
+        p = tf.add_paragraph()
+        p.text = f"- {line}"
+        p.font.size = Pt(14)
+
+    tf.paragraphs[0].font.bold = True
 
 def generate_ppt(json_path: str, output_dir: str):
     with open(json_path, 'r') as f:
@@ -120,14 +138,12 @@ def generate_ppt(json_path: str, output_dir: str):
     output_path.mkdir(parents=True, exist_ok=True)
 
     prs = Presentation()
-
-    # Add summary slide with expanded visuals
     add_summary_slide(prs, data, overall)
+    add_insights_slide(prs, summary)
 
     ppt_path = output_path / "Service_Report.pptx"
     prs.save(ppt_path)
     print(f"✅ Presentation saved to {ppt_path}")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate service report PowerPoint")
