@@ -44,14 +44,12 @@ def generate_volume_bar_chart(data, output_path):
     chart_path = output_path / "volume_by_service.png"
     plt.savefig(chart_path)
     plt.close()
-    print(f"✅ Volume bar chart saved to {chart_path}")
+    print(f"[OK] Volume bar chart saved to {chart_path}")
 
 def generate_urgency_heatmap(data, output_path):
     urgency_levels = ["1 - High", "2 - Medium", "3 - Low"]
 
-    # Heatmap for INC
     df_inc = pd.DataFrame(index=[SERVICES[k] for k in SERVICES], columns=urgency_levels).fillna(0)
-    # Heatmap for RITM
     df_ritm = pd.DataFrame(index=[SERVICES[k] for k in SERVICES], columns=urgency_levels).fillna(0)
 
     for tag, label in SERVICES.items():
@@ -73,7 +71,7 @@ def generate_urgency_heatmap(data, output_path):
     heatmap_inc_path = output_path / "urgency_heatmap_INC.png"
     plt.savefig(heatmap_inc_path)
     plt.close()
-    print(f"✅ INC urgency heatmap saved to {heatmap_inc_path}")
+    print(f"[OK] INC urgency heatmap saved to {heatmap_inc_path}")
 
     plt.figure(figsize=(8, 6))
     sns.heatmap(df_ritm.astype(float), annot=True, cmap="YlGnBu", fmt=".1f")
@@ -82,17 +80,17 @@ def generate_urgency_heatmap(data, output_path):
     heatmap_ritm_path = output_path / "urgency_heatmap_RITM.png"
     plt.savefig(heatmap_ritm_path)
     plt.close()
-    print(f"✅ RITM urgency heatmap saved to {heatmap_ritm_path}")
+    print(f"[OK] RITM urgency heatmap saved to {heatmap_ritm_path}")
 
 def generate_monthly_progress(csv_file, output_path):
     try:
         df = pd.read_csv(csv_file)
     except Exception as e:
-        print(f"❌ Failed to load predictions file: {e}")
+        print(f"Failed to load predictions file: {e}")
         return
 
     if "Created" not in df or "ID" not in df:
-        print("❌ Required columns not found in data")
+        print("Required columns not found in data")
         return
 
     df["Created"] = pd.to_datetime(df["Created"], errors='coerce')
@@ -122,7 +120,7 @@ def generate_monthly_progress(csv_file, output_path):
     line_path = output_path / "monthly_progress.png"
     plt.savefig(line_path)
     plt.close()
-    print(f"✅ Monthly progress chart saved to {line_path}")
+    print(f"[OK] Monthly progress chart saved to {line_path}")
 
 def generate_total_donut(data, output_path):
     total_inc = total_ritm = 0
@@ -149,7 +147,7 @@ def generate_total_donut(data, output_path):
     donut_path = output_path / "donut_total.png"
     plt.savefig(donut_path, bbox_inches='tight')
     plt.close()
-    print(f"✅ Donut chart saved to {donut_path}")
+    print(f"[OK] Donut chart saved to {donut_path}")
 
 def generate_charts(json_path: str, output_dir: str, csv_path: str):
     output_path = Path(output_dir)

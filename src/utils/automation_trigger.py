@@ -27,22 +27,26 @@ for file in os.listdir(raw_data_path):
             end_date = match.group(2).replace("_", "-")
 
 if not latest_file:
-    print("❌ No valid input file found.")
+    print(" No valid input file found.")
     exit(1)
 
-# Commands to run
+# Build all commands into a single line to run in the same shell session
 commands = [
     f'cd /d "{project_root}"',
-    f'call {env_activate}',
+    f'call "{env_activate}"',
     f'python src/classifier.py --predict "data/raw/{latest_file}" --output "data/processed/predictions.csv"',
     f'python src/utils/data_to_json.py --input data/processed/predictions.csv --start-date {start_date} --end-date {end_date}',
     f'python src/utils/charts.py --input data/processed/service_summary.json --csv data/processed/predictions.csv --output data/charts',
     f'python src/utils/visualization.py --input data/processed/service_summary.json --output data/reports/'
 ]
 
-print("🚀 Starting automation...")
-for cmd in commands:
-    print(f"\n➡ Running: {cmd}")
-    subprocess.run(cmd, shell=True)
+full_command = " && ".join(commands)
 
-print("\n✅ Done.")
+print("🚀 Starting automation...\n")
+print(full_command)
+
+result = subprocess.run(full_command, shell=True, capture_output=True, text=True)
+
+print("\n📤 STDOUT:\n", result.stdout)
+print("\n❗ STDERR:\n", result.stderr)
+print("\n [✔]  Done.")

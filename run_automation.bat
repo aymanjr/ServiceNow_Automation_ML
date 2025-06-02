@@ -1,13 +1,2 @@
 @echo off
-cd /d D:\Projects\ServiceNow_Automation_ML
-
-REM Activate your virtual environment
-call pyEnv310\Scripts\activate.bat
-
-REM Run the automation
-python src\utils\automation_trigger.py
-
-REM Open the generated PowerPoint file
-start "" "data\reports\Service_Report.pptx"
-
-pause
+D:\Projects\ServiceNow_Automation_ML\pyEnv310\Scripts\python.exe D:\Projects\ServiceNow_Automation_ML\src\utils\automation_trigger.py

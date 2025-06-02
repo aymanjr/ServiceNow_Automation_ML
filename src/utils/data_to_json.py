@@ -3,18 +3,20 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta
 import argparse
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 def generate_service_summary(input_file: str, output_file: str = "data/processed/service_summary.json", start_date: str = None, end_date: str = None):
     try:
         df = pd.read_csv(input_file)
     except Exception as e:
-        print(f"❌ Failed to read file: {e}")
+        print(f" Failed to read file: {e}")
         return
 
     required_cols = {"ID", "Created", "Predicted_Service_Tag", "Urgency"}
     missing = required_cols - set(df.columns)
     if missing:
-        print(f"❌ Missing required columns: {missing}")
+        print(f" Missing required columns: {missing}")
         return
 
     df["Created"] = pd.to_datetime(df["Created"], errors='coerce')
@@ -106,7 +108,7 @@ def generate_service_summary(input_file: str, output_file: str = "data/processed
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(summary, f, indent=2)
-    print(f"✅ Service summary saved to {output_path}")
+    print(f"[OK] Service summary saved to {output_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate JSON summary from prediction file")

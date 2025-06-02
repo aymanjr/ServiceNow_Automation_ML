@@ -21,10 +21,9 @@ def map_service_name(name):
 def add_summary_slide(prs, data, overall):
     prs.slide_width = Inches(13.33)
     prs.slide_height = Inches(7.5)
-    slide_layout = prs.slide_layouts[6]  # Blank slide
+    slide_layout = prs.slide_layouts[6]
     slide = prs.slides.add_slide(slide_layout)
 
-    # Table
     table_left = Inches(5.65)
     table_top = Inches(3.05)
     table_width = Inches(7.47)
@@ -59,7 +58,6 @@ def add_summary_slide(prs, data, overall):
     for i in range(4):
         table.cell(10, i).text_frame.paragraphs[0].font.bold = True
 
-    # Donuts and heatmaps
     if Path("data/charts/urgency_heatmap_INC.png").exists():
         slide.shapes.add_picture("data/charts/urgency_heatmap_INC.png", Inches(10.51), Inches(0.43), width=Inches(2.77), height=Inches(2.15))
 
@@ -69,7 +67,6 @@ def add_summary_slide(prs, data, overall):
     if Path("data/charts/donut_total.png").exists():
         slide.shapes.add_picture("data/charts/donut_total.png", Inches(8.03), Inches(0.43), width=Inches(2.51), height=Inches(2.28))
 
-    # Weekly keynotes
     keynotes_box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.76), Inches(2.68), Inches(4.03), Inches(3.75))
     keynotes_box.fill.solid()
     keynotes_box.fill.fore_color.rgb = RGBColor(255, 165, 0)
@@ -80,14 +77,12 @@ def add_summary_slide(prs, data, overall):
 def add_insights_slide(prs, summary):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
 
-    # Insights title
     title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(12), Inches(1))
     tf = title_box.text_frame
     tf.text = "Key Weekly Insights"
     tf.paragraphs[0].font.size = Pt(24)
     tf.paragraphs[0].font.bold = True
 
-    # Insight list
     comparison = summary.get("comparison", {})
     insights_box = slide.shapes.add_textbox(Inches(0.5), Inches(1.1), Inches(6), Inches(3.5))
     insights_tf = insights_box.text_frame
@@ -99,11 +94,9 @@ def add_insights_slide(prs, summary):
     if insights_tf.paragraphs:
         insights_tf.paragraphs[0].font.bold = True
 
-    # Volume chart
     if Path("data/charts/volume_by_service.png").exists():
         slide.shapes.add_picture("data/charts/volume_by_service.png", Inches(7), Inches(1.1), height=Inches(3.0))
 
-    # Monthly progress
     if Path("data/charts/monthly_progress.png").exists():
         slide.shapes.add_picture("data/charts/monthly_progress.png", Inches(0.5), Inches(4.7), height=Inches(2.5))
 
@@ -122,7 +115,7 @@ def generate_ppt(json_path: str, output_dir: str):
 
     ppt_path = output_path / "Service_Report.pptx"
     prs.save(ppt_path)
-    print(f"✅ Presentation saved to {ppt_path}")
+    print(f"[OK] Presentation saved to {ppt_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate service report PowerPoint")

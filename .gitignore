@@ -9,6 +9,7 @@ __pycache__/
 # Ignore all CSV files recursively
 *.csv
 *.json
+*.png
 servicetag/
 
 # Ignore all PowerPoint files recursively
