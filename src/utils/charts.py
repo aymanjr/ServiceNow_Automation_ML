@@ -18,6 +18,8 @@ SERVICES = {
     "IFS": "IFS"
 }
 
+RITM_ALLOWED = {"SIP", "CF", "MVM", "HV", "IFS"}
+
 COLORS = sns.color_palette("Set2")
 
 def load_data(json_path):
@@ -49,8 +51,14 @@ def generate_volume_bar_chart(data, output_path):
 def generate_urgency_heatmap(data, output_path):
     urgency_levels = ["1 - High", "2 - Medium", "3 - Low"]
 
-    df_inc = pd.DataFrame(index=[SERVICES[k] for k in SERVICES], columns=urgency_levels).fillna(0)
-    df_ritm = pd.DataFrame(index=[SERVICES[k] for k in SERVICES], columns=urgency_levels).fillna(0)
+    def format_cell(pct, total):
+        count = int(round((pct / 100) * total))
+        return f"{pct:.1f}%\n({count})"
+
+    df_inc = pd.DataFrame(index=[SERVICES[k] for k in SERVICES], columns=urgency_levels).fillna("")
+    df_ritm = pd.DataFrame(index=[SERVICES[k] for k in SERVICES if k in RITM_ALLOWED], columns=urgency_levels).fillna("")
+    df_inc_numeric = pd.DataFrame(index=[SERVICES[k] for k in SERVICES], columns=urgency_levels).fillna(0)
+    df_ritm_numeric = pd.DataFrame(index=[SERVICES[k] for k in SERVICES if k in RITM_ALLOWED], columns=urgency_levels).fillna(0)
 
     for tag, label in SERVICES.items():
         stats = data.get(tag.upper())
@@ -58,15 +66,18 @@ def generate_urgency_heatmap(data, output_path):
             urg_dist = stats.get("urgency_distribution", {})
             inc_count = stats.get("INC_count", 0)
             ritm_count = stats.get("RITM_count", 0)
-            total = inc_count + ritm_count if (inc_count + ritm_count) else 1
             for level in urgency_levels:
-                val = urg_dist.get(level, 0)
-                df_inc.loc[label, level] = round((val * inc_count / total), 1)
-                df_ritm.loc[label, level] = round((val * ritm_count / total), 1)
+                pct = urg_dist.get(level, 0)
+                if inc_count > 0:
+                    df_inc.loc[label, level] = format_cell(pct, inc_count)
+                    df_inc_numeric.loc[label, level] = pct
+                if tag in RITM_ALLOWED and ritm_count > 0:
+                    df_ritm.loc[label, level] = format_cell(pct, ritm_count)
+                    df_ritm_numeric.loc[label, level] = pct
 
     plt.figure(figsize=(8, 6))
-    sns.heatmap(df_inc.astype(float), annot=True, cmap="YlGnBu", fmt=".1f")
-    plt.title("Urgency Distribution for INC (%)")
+    sns.heatmap(df_inc_numeric.astype(float), annot=df_inc, fmt='', cmap="YlGnBu")
+    plt.title("Urgency Distribution for INC (% and Ticket Count)")
     plt.tight_layout()
     heatmap_inc_path = output_path / "urgency_heatmap_INC.png"
     plt.savefig(heatmap_inc_path)
@@ -74,8 +85,8 @@ def generate_urgency_heatmap(data, output_path):
     print(f"[OK] INC urgency heatmap saved to {heatmap_inc_path}")
 
     plt.figure(figsize=(8, 6))
-    sns.heatmap(df_ritm.astype(float), annot=True, cmap="YlGnBu", fmt=".1f")
-    plt.title("Urgency Distribution for RITM (%)")
+    sns.heatmap(df_ritm_numeric.astype(float), annot=df_ritm, fmt='', cmap="YlGnBu")
+    plt.title("Urgency Distribution for RITM (% and Ticket Count)")
     plt.tight_layout()
     heatmap_ritm_path = output_path / "urgency_heatmap_RITM.png"
     plt.savefig(heatmap_ritm_path)
@@ -143,7 +154,7 @@ def generate_total_donut(data, output_path):
 
     plt.text(0, 0, f"{total_all}\nTotal", ha='center', va='center', fontsize=12, weight='bold')
     plt.title("Total Tickets: INC vs RITM", fontsize=10)
-    
+
     donut_path = output_path / "donut_total.png"
     plt.savefig(donut_path, bbox_inches='tight')
     plt.close()
