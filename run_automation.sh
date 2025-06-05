@@ -6,6 +6,6 @@ cd /root/n8n-docker/automation_project
 git pull origin main
 
 # Run automation using specific Python
-/root/n8n-docker/automation_project/pyEnv310/bin/python3 src/utils/automation_trigger_ubuntu.py
+/root/n8n-docker/automation_project/pyEnv310/Scripts/python.exe src/utils/automation_trigger_ubuntu.py
 
 echo "Automation script triggered."
