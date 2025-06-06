@@ -5,4 +5,5 @@ matplotlib
 seaborn
 python-pptx
 joblib
-pyinstaller 
+pyinstaller
+chardet

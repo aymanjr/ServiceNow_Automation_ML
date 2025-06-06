@@ -1,156 +1,141 @@
 {
-  "generated_at": "2025-06-04T09:23:34.205619",
+  "generated_at": "2025-06-06T14:52:55.783129",
   "source_file": "data/processed/predictions.csv",
   "date_range": {
-    "start": "2025-04-01",
-    "end": "2025-05-01"
+    "start": "2025-05-01",
+    "end": "2025-05-31"
   },
   "services": {
+    "SIP": {
+      "total_tickets": 400,
+      "INC_count": 20,
+      "RITM_count": 380,
+      "urgency_distribution": {
+        "4 - Low": 49.0,
+        "3 - Average": 21.0,
+        "2 - High": 17.5,
+        "1 - Critical": 7.5,
+        "1 - High": 2.5,
+        "3 - Low": 1.25,
+        "2 - Medium": 1.25
+      },
+      "first_ticket": "2025-05-01T00:25:00",
+      "last_ticket": "2025-05-26T11:37:00"
+    },
+    "IFS": {
+      "total_tickets": 15,
+      "INC_count": 1,
+      "RITM_count": 14,
+      "urgency_distribution": {
+        "2 - High": 33.33,
+        "4 - Low": 26.669999999999998,
+        "1 - Critical": 20.0,
+        "3 - Average": 13.33,
+        "1 - High": 6.67
+      },
+      "first_ticket": "2025-05-05T18:02:00",
+      "last_ticket": "2025-05-26T08:17:00"
+    },
+    "CF": {
+      "total_tickets": 52,
+      "INC_count": 11,
+      "RITM_count": 41,
+      "urgency_distribution": {
+        "1 - Critical": 76.92,
+        "3 - Low": 9.62,
+        "1 - High": 5.7700000000000005,
+        "2 - Medium": 5.7700000000000005,
+        "4 - Low": 1.92
+      },
+      "first_ticket": "2025-05-01T03:29:00",
+      "last_ticket": "2025-05-26T09:11:00"
+    },
+    "MVM": {
+      "total_tickets": 17,
+      "INC_count": 4,
+      "RITM_count": 13,
+      "urgency_distribution": {
+        "2 - High": 41.18,
+        "1 - High": 23.53,
+        "4 - Low": 17.65,
+        "3 - Average": 17.65
+      },
+      "first_ticket": "2025-05-01T11:49:00",
+      "last_ticket": "2025-05-22T15:12:00"
+    },
+    "HV": {
+      "total_tickets": 3,
+      "INC_count": 0,
+      "RITM_count": 3,
+      "urgency_distribution": {
+        "1 - Critical": 100.0
+      },
+      "first_ticket": "2025-05-07T01:54:00",
+      "last_ticket": "2025-05-13T19:44:00"
+    },
+    "AUTO": {
+      "total_tickets": 142,
+      "INC_count": 142,
+      "RITM_count": 0,
+      "urgency_distribution": {
+        "1 - High": 38.03,
+        "3 - Low": 35.92,
+        "2 - Medium": 26.06
+      },
+      "first_ticket": "2025-05-01T00:58:00",
+      "last_ticket": "2025-05-26T09:45:00"
+    },
+    "FLOW": {
+      "total_tickets": 49,
+      "INC_count": 49,
+      "RITM_count": 0,
+      "urgency_distribution": {
+        "4 - Low": 87.76,
+        "3 - Low": 6.12,
+        "2 - Medium": 4.08,
+        "1 - High": 2.04
+      },
+      "first_ticket": "2025-05-01T05:20:00",
+      "last_ticket": "2025-05-26T07:52:00"
+    },
+    "IW": {
+      "total_tickets": 10,
+      "INC_count": 10,
+      "RITM_count": 0,
+      "urgency_distribution": {
+        "3 - Low": 70.0,
+        "2 - Medium": 30.0
+      },
+      "first_ticket": "2025-05-01T16:22:00",
+      "last_ticket": "2025-05-25T13:01:00"
+    },
     "AD": {
       "total_tickets": 12,
       "INC_count": 12,
       "RITM_count": 0,
       "urgency_distribution": {
-        "3 - Low": 58.330000000000005,
-        "1 - High": 41.67
-      },
-      "first_ticket": "2025-04-01T10:01:00",
-      "last_ticket": "2025-04-24T14:16:00"
-    },
-    "AUTO": {
-      "total_tickets": 155,
-      "INC_count": 155,
-      "RITM_count": 0,
-      "urgency_distribution": {
-        "3 - Low": 43.87,
-        "2 - Medium": 30.97,
-        "1 - High": 25.16
-      },
-      "first_ticket": "2025-04-01T06:03:00",
-      "last_ticket": "2025-04-30T21:23:00"
-    },
-    "CF": {
-      "total_tickets": 81,
-      "INC_count": 13,
-      "RITM_count": 68,
-      "urgency_distribution": {
-        "1 - Critical": 82.72,
-        "1 - High": 7.41,
-        "2 - Medium": 4.9399999999999995,
-        "3 - Low": 3.6999999999999997,
-        "4 - Low": 1.23
-      },
-      "first_ticket": "2025-04-01T07:15:00",
-      "last_ticket": "2025-04-30T19:12:00"
-    },
-    "FLOW": {
-      "total_tickets": 72,
-      "INC_count": 72,
-      "RITM_count": 0,
-      "urgency_distribution": {
-        "4 - Low": 81.94,
-        "1 - High": 8.33,
-        "3 - Low": 5.56,
-        "2 - Medium": 4.17
-      },
-      "first_ticket": "2025-04-01T04:27:00",
-      "last_ticket": "2025-04-30T07:37:00"
-    },
-    "HV": {
-      "total_tickets": 6,
-      "INC_count": 4,
-      "RITM_count": 2,
-      "urgency_distribution": {
-        "1 - Critical": 33.33,
         "3 - Low": 33.33,
-        "2 - Medium": 16.669999999999998,
-        "1 - High": 16.669999999999998
+        "2 - Medium": 33.33,
+        "1 - High": 33.33
       },
-      "first_ticket": "2025-04-10T19:55:00",
-      "last_ticket": "2025-04-26T12:46:00"
-    },
-    "IFS": {
-      "total_tickets": 27,
-      "INC_count": 2,
-      "RITM_count": 25,
-      "urgency_distribution": {
-        "1 - Critical": 55.559999999999995,
-        "2 - High": 25.929999999999996,
-        "3 - Average": 7.41,
-        "1 - High": 7.41,
-        "4 - Low": 3.6999999999999997
-      },
-      "first_ticket": "2025-04-03T06:07:00",
-      "last_ticket": "2025-04-30T13:40:00"
-    },
-    "IW": {
-      "total_tickets": 3,
-      "INC_count": 3,
-      "RITM_count": 0,
-      "urgency_distribution": {
-        "3 - Low": 100.0
-      },
-      "first_ticket": "2025-04-08T15:28:00",
-      "last_ticket": "2025-04-09T14:05:00"
-    },
-    "MVM": {
-      "total_tickets": 41,
-      "INC_count": 6,
-      "RITM_count": 35,
-      "urgency_distribution": {
-        "4 - Low": 34.150000000000006,
-        "2 - High": 31.71,
-        "3 - Average": 12.2,
-        "1 - Critical": 7.32,
-        "1 - High": 7.32,
-        "2 - Medium": 4.88,
-        "3 - Low": 2.44
-      },
-      "first_ticket": "2025-04-02T15:19:00",
-      "last_ticket": "2025-04-30T14:36:00"
-    },
-    "SIP": {
-      "total_tickets": 521,
-      "INC_count": 63,
-      "RITM_count": 458,
-      "urgency_distribution": {
-        "4 - Low": 42.99,
-        "2 - High": 22.84,
-        "1 - Critical": 11.129999999999999,
-        "3 - Average": 10.94,
-        "1 - High": 4.99,
-        "3 - Low": 4.8,
-        "2 - Medium": 2.3
-      },
-      "first_ticket": "2025-04-01T04:21:00",
-      "last_ticket": "2025-04-30T23:59:00"
-    },
-    "TEST": {
-      "total_tickets": 2,
-      "INC_count": 2,
-      "RITM_count": 0,
-      "urgency_distribution": {
-        "3 - Low": 100.0
-      },
-      "first_ticket": "2025-04-08T06:27:00",
-      "last_ticket": "2025-04-09T19:14:00"
+      "first_ticket": "2025-05-05T14:03:00",
+      "last_ticket": "2025-05-25T04:28:00"
     }
   },
   "overall": {
-    "total_tickets": 920,
-    "total_INC": 332,
-    "total_RITM": 588
+    "total_tickets": 700,
+    "total_INC": 249,
+    "total_RITM": 451
   },
   "comparison": {
-    "AD": "Decrease of 33.3% in AD",
-    "AUTO": "Increase of 5.4% in AUTO",
-    "CF": "Increase of 17.4% in CF",
-    "FLOW": "Decrease of 66.7% in FLOW",
-    "HV": "Decrease of 14.3% in HV",
-    "IFS": "Decrease of 6.9% in IFS",
-    "IW": "Increase of 200.0% in IW",
-    "MVM": "Increase of 32.3% in MVM",
-    "SIP": "Increase of 5.0% in SIP",
-    "TEST": "Decrease of 80.0% in TEST"
+    "SIP": "Decrease of 21.4% in SIP",
+    "IFS": "Decrease of 44.4% in IFS",
+    "CF": "Decrease of 35.8% in CF",
+    "MVM": "Decrease of 58.5% in MVM",
+    "HV": "Decrease of 50.0% in HV",
+    "AUTO": "Decrease of 8.4% in AUTO",
+    "FLOW": "Decrease of 31.0% in FLOW",
+    "IW": "Decrease of 37.5% in IW",
+    "AD": "No change in ticket volume for AD"
   }
 }

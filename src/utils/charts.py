@@ -95,7 +95,8 @@ def generate_urgency_heatmap(data, output_path):
 
 def generate_monthly_progress(csv_file, output_path):
     try:
-        df = pd.read_csv(csv_file)
+        # Use low_memory=False to avoid mixed type warnings
+        df = pd.read_csv(csv_file, low_memory=False)
     except Exception as e:
         print(f"Failed to load predictions file: {e}")
         return
@@ -104,34 +105,74 @@ def generate_monthly_progress(csv_file, output_path):
         print("Required columns not found in data")
         return
 
-    df["Created"] = pd.to_datetime(df["Created"], errors='coerce')
+    # Custom date parsing function for the Created column
+    def parse_date(x):
+        if pd.isnull(x):
+            return pd.NaT
+            
+        try:
+            # Handle Excel float dates
+            if isinstance(x, (float, int)) and x > 20000:
+                return pd.to_datetime('1899-12-30') + pd.to_timedelta(x, unit='D')
+                
+            # Try common date formats
+            date_formats = [
+                '%m/%d/%Y %H:%M',  # 5/15/2025 15:02
+                '%m/%d/%Y %H:%M:%S',  # 5/15/2025 15:02:30
+                '%Y-%m-%d %H:%M:%S',  # 2025-05-15 15:02:30
+                '%Y-%m-%d %H:%M',     # 2025-05-15 15:02
+                '%Y-%m-%d',           # 2025-05-15
+                '%m/%d/%Y',           # 5/15/2025
+            ]
+            
+            for fmt in date_formats:
+                try:
+                    return pd.to_datetime(x, format=fmt)
+                except:
+                    continue
+                    
+            # Last resort: try pandas default parser
+            return pd.to_datetime(x)
+        except:
+            return pd.NaT
+    
+    # Apply custom parsing to Created column
+    df["Created"] = df["Created"].apply(parse_date)
     df = df.dropna(subset=["Created"])
 
-    current_year = datetime.now().year
-    df = df[df["Created"].dt.year == current_year]
+    try:
+        current_year = datetime.now().year
+        df = df[df["Created"].dt.year == current_year]
 
-    df["month"] = df["Created"].dt.to_period("M")
-    df["type"] = df["ID"].apply(lambda x: "INC" if str(x).startswith("INC") else ("RITM" if str(x).startswith("RITM") else "OTHER"))
-    filtered = df[df["type"].isin(["INC", "RITM"])]
+        df["month"] = df["Created"].dt.to_period("M")
+        df["type"] = df["ID"].apply(lambda x: "INC" if str(x).startswith("INC") else ("RITM" if str(x).startswith("RITM") else "OTHER"))
+        filtered = df[df["type"].isin(["INC", "RITM"])]
 
-    summary = filtered.groupby(["month", "type"]).size().unstack(fill_value=0)
-    summary = summary.sort_index()
+        if filtered.empty:
+            print("[WARNING] No valid data for monthly progress chart - skipping")
+            return
 
-    plt.figure(figsize=(10, 5))
-    for t in ["INC", "RITM"]:
-        if t in summary:
-            plt.plot(summary.index.astype(str), summary[t], marker='o', label=t)
+        summary = filtered.groupby(["month", "type"]).size().unstack(fill_value=0)
+        summary = summary.sort_index()
 
-    plt.xlabel("Month")
-    plt.ylabel("Ticket Count")
-    plt.title(f"{current_year} Monthly Ticket Progress: INC vs RITM")
-    plt.legend()
-    plt.tight_layout()
+        plt.figure(figsize=(10, 5))
+        for t in ["INC", "RITM"]:
+            if t in summary:
+                plt.plot(summary.index.astype(str), summary[t], marker='o', label=t)
 
-    line_path = output_path / "monthly_progress.png"
-    plt.savefig(line_path)
-    plt.close()
-    print(f"[OK] Monthly progress chart saved to {line_path}")
+        plt.xlabel("Month")
+        plt.ylabel("Ticket Count")
+        plt.title(f"{current_year} Monthly Ticket Progress: INC vs RITM")
+        plt.legend()
+        plt.tight_layout()
+
+        line_path = output_path / "monthly_progress.png"
+        plt.savefig(line_path)
+        plt.close()
+        print(f"[OK] Monthly progress chart saved to {line_path}")
+    except Exception as e:
+        print(f"[ERROR] Failed to generate monthly progress chart: {e}")
+        plt.close()
 
 def generate_total_donut(data, output_path):
     total_inc = total_ritm = 0
@@ -144,21 +185,30 @@ def generate_total_donut(data, output_path):
     inc_pct = round((total_inc / total_all) * 100, 1)
     ritm_pct = round((total_ritm / total_all) * 100, 1)
 
+    # Ensure we have valid data for the pie chart
+    if total_inc == 0 and total_ritm == 0:
+        print("[WARNING] No valid data for donut chart - skipping")
+        return
+
     labels = [f"RITM - {total_ritm} ({ritm_pct}%)", f"INC - {total_inc} ({inc_pct}%)"]
     sizes = [total_ritm, total_inc]
     colors = ['#2ecc71', '#e67e22']
 
-    fig, ax = plt.subplots(figsize=(3.5, 3.5))
-    wedges, texts = ax.pie(sizes, labels=labels, startangle=90,
-                           colors=colors, wedgeprops={'width': 0.4})
+    try:
+        fig, ax = plt.subplots(figsize=(3.5, 3.5))
+        wedges, texts = ax.pie(sizes, labels=labels, startangle=90,
+                               colors=colors, wedgeprops={'width': 0.4})
 
-    plt.text(0, 0, f"{total_all}\nTotal", ha='center', va='center', fontsize=12, weight='bold')
-    plt.title("Total Tickets: INC vs RITM", fontsize=10)
+        plt.text(0, 0, f"{total_all}\nTotal", ha='center', va='center', fontsize=12, weight='bold')
+        plt.title("Total Tickets: INC vs RITM", fontsize=10)
 
-    donut_path = output_path / "donut_total.png"
-    plt.savefig(donut_path, bbox_inches='tight')
-    plt.close()
-    print(f"[OK] Donut chart saved to {donut_path}")
+        donut_path = output_path / "donut_total.png"
+        plt.savefig(donut_path, bbox_inches='tight')
+        plt.close()
+        print(f"[OK] Donut chart saved to {donut_path}")
+    except Exception as e:
+        print(f"[ERROR] Failed to generate donut chart: {e}")
+        plt.close()
 
 def generate_charts(json_path: str, output_dir: str, csv_path: str):
     output_path = Path(output_dir)

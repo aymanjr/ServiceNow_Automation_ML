@@ -3,12 +3,63 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta
 import argparse
-import sys
-sys.stdout.reconfigure(encoding='utf-8')
+from dateutil import parser
+
+import pandas as pd
+import numpy as np
+
+def safe_parse(x):
+    if pd.isnull(x):
+        return pd.NaT
+
+    try:
+        # Handle Excel float dates (serial date like 45670.96182)
+        if isinstance(x, (float, int)) or (isinstance(x, str) and x.replace('.', '', 1).isdigit()):
+            # Convert string to float if needed
+            if isinstance(x, str):
+                x = float(x.strip())
+            
+            # Excel serial date starts from 1899-12-30
+            base_date = pd.to_datetime('1899-12-30')
+            # Separate days and fraction
+            days = int(x)
+            fraction = x - days
+            # Convert days to timedelta
+            date_part = base_date + pd.to_timedelta(days, unit='D')
+            # Convert fraction to hours/minutes/seconds
+            time_part = pd.to_timedelta(fraction * 24, unit='H')
+            # Combine date and time
+            return date_part + time_part
+        
+        # Handle MM/DD/YYYY HH:MM format explicitly
+        if isinstance(x, str):
+            # Try to match common date formats first
+            date_formats = [
+                '%m/%d/%Y %H:%M',  # 5/15/2025 15:02
+                '%m/%d/%Y %H:%M:%S',  # 5/15/2025 15:02:30
+                '%Y-%m-%d %H:%M:%S',  # 2025-05-15 15:02:30
+                '%Y-%m-%d %H:%M',     # 2025-05-15 15:02
+                '%Y-%m-%d',           # 2025-05-15
+                '%m/%d/%Y',           # 5/15/2025
+                '%d-%m-%Y %H:%M',     # 15-05-2025 15:02
+                '%d-%m-%Y'            # 15-05-2025
+            ]
+            
+            for fmt in date_formats:
+                try:
+                    return pd.to_datetime(x, format=fmt)
+                except:
+                    continue
+        
+        # If all explicit formats fail, try fuzzy parsing as a last resort
+        return parser.parse(str(x), fuzzy=True)
+    except Exception as e:
+        print(f"[PARSE FAIL] {x}")
+        return pd.NaT
 
 def generate_service_summary(input_file: str, output_file: str = "data/processed/service_summary.json", start_date: str = None, end_date: str = None):
     try:
-        df = pd.read_csv(input_file)
+        df = pd.read_csv(input_file, low_memory=False)
     except Exception as e:
         print(f" Failed to read file: {e}")
         return
@@ -19,7 +70,7 @@ def generate_service_summary(input_file: str, output_file: str = "data/processed
         print(f" Missing required columns: {missing}")
         return
 
-    df["Created"] = pd.to_datetime(df["Created"], errors='coerce')
+    df["Created"] = df["Created"].apply(safe_parse)
     df["Predicted_Service_Tag"] = df["Predicted_Service_Tag"].str.upper()
 
     # Convert input dates
@@ -44,7 +95,8 @@ def generate_service_summary(input_file: str, output_file: str = "data/processed
 
     def summarize(df_slice):
         result = {}
-        for service, group in df_slice.groupby("Predicted_Service_Tag"):
+        for service in df_slice["Predicted_Service_Tag"].unique():
+            group = df_slice[df_slice["Predicted_Service_Tag"] == service]
             total_tickets = len(group)
             inc_count = group["ID"].str.startswith("INC").sum()
             ritm_count = group["ID"].str.startswith("RITM").sum()

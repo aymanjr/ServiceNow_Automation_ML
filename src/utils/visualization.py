@@ -40,8 +40,8 @@ def add_summary_slide(prs, data, overall):
 
     for i, s in enumerate(order):
         stats = data.get(s.upper(), {})
-        inc = stats.get("INC_count", 0)
-        ritm = stats.get("RITM_count", 0)
+        inc = int(stats.get("INC_count", 0) or 0)
+        ritm = int(stats.get("RITM_count", 0) or 0)
         total = inc + ritm
         total_inc += inc
         total_ritm += ritm

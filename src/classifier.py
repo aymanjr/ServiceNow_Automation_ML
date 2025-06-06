@@ -202,30 +202,49 @@ class ServiceTagClassifier:
         
         return new_data
     
+ 
     def _apply_business_rules(self, df):
         """Apply specific business rules to predictions"""
         try:
-            # Rule: Jumphost password reset -> SIP
-            mask_jumphost = df['Short description'].str.contains('jumphost password reset', case=False, na=False)
-            df.loc[mask_jumphost, 'Predicted_Service_Tag'] = 'SIP'
+            # === SIP Rule ===
+            # Match if 'jumphost' and 'reset' or related terms in description
+            mask_sip_desc = df['Short description'].str.contains(
+                r'jumphost.*reset|reset.*jumphost|jump host|jumpbox|jump box',
+                case=False, na=False
+            )
             
-            # Rule: TEST tag only if 'test' in short description
+            # Match if Configuration item starts with SIP_
+            mask_sip_ci = df['Configuration item'].str.match(r'^SIP_', case=False, na=False)
+
+            # Combine both SIP conditions
+            mask_sip_combined = mask_sip_desc | mask_sip_ci
+            df.loc[mask_sip_combined, 'Predicted_Service_Tag'] = 'SIP'
+            print(f"[RULE] SIP reassignment applied to {mask_sip_combined.sum()} tickets")
+
+            # === TEST Rule ===
             mask_test = df['Predicted_Service_Tag'] == 'TEST'
             test_desc_mask = df['Short description'].str.contains('test', case=False, na=False)
-            # Set to TEST only if 'test' in description, else leave as original prediction
-            df.loc[mask_test & ~test_desc_mask, 'Predicted_Service_Tag'] = df.loc[mask_test & ~test_desc_mask, 'Predicted_Service_Tag'].apply(lambda x: x if x != 'TEST' else 'missing')
-            
-            # Rule: Tickets containing 'IFS' anywhere -> IFS tag
+            cleaned = mask_test & ~test_desc_mask
+            df.loc[cleaned, 'Predicted_Service_Tag'] = df.loc[cleaned, 'Predicted_Service_Tag'].apply(
+                lambda x: x if x != 'TEST' else 'missing'
+            )
+            print(f"[RULE] TEST cleared from {cleaned.sum()} tickets (no 'test' in desc)")
+            # === Industrial Wireless (IW) Rule ===
+            mask_iw = df['Configuration item'].str.match(r'^indwireless_', case=False, na=False)
+            df.loc[mask_iw, 'Predicted_Service_Tag'] = 'IW'
+            print(f"[RULE] IW reassignment applied to {mask_iw.sum()} tickets")
+            # === IFS Rule ===
             mask_ifs = (
-                df['Short description'].str.contains('ifs', case=False, na=False) |
-                df['Assignment group'].str.contains('ifs', case=False, na=False) |
-                df['Configuration item'].str.contains('ifs', case=False, na=False) |
-                df['Business Unit'].str.contains('ifs', case=False, na=False) |
-                df['Item'].str.contains('ifs', case=False, na=False)
+                df['Short description'].str.contains(r'\bifs\b', case=False, na=False) |
+                df['Assignment group'].str.contains(r'\bifs\b', case=False, na=False) |
+                df['Configuration item'].str.contains(r'\bifs\b', case=False, na=False) |
+                df['Business Unit'].str.contains(r'\bifs\b', case=False, na=False) |
+                df['Item'].str.contains(r'\bifs\b', case=False, na=False)
             )
             df.loc[mask_ifs, 'Predicted_Service_Tag'] = 'IFS'
-            
-            # Rule: Confluence related tickets -> CF
+            print(f"[RULE] IFS reassignment applied to {mask_ifs.sum()} tickets")
+
+            # === Confluence Rule (CF) ===
             mask_cf = (
                 df['Short description'].str.contains('confluence', case=False, na=False) |
                 df['Assignment group'].str.contains('confluence', case=False, na=False) |
@@ -234,8 +253,9 @@ class ServiceTagClassifier:
                 df['Item'].str.contains('confluence', case=False, na=False)
             )
             df.loc[mask_cf, 'Predicted_Service_Tag'] = 'CF'
-            
-            # Rule: MAVIM related tickets -> MVM
+            print(f"[RULE] CF reassignment applied to {mask_cf.sum()} tickets")
+
+            # === MAVIM Rule (MVM) ===
             mask_mvm = (
                 df['Short description'].str.contains('mavim', case=False, na=False) |
                 df['Assignment group'].str.contains('mavim', case=False, na=False) |
@@ -244,19 +264,23 @@ class ServiceTagClassifier:
                 df['Item'].str.contains('mavim', case=False, na=False)
             )
             df.loc[mask_mvm, 'Predicted_Service_Tag'] = 'MVM'
-            
-            # Rule: Assignment group containing 'Automation' -> AUTO
+            print(f"[RULE] MVM reassignment applied to {mask_mvm.sum()} tickets")
+
+            # === AUTO Rule ===
             mask_auto = df['Assignment group'].str.contains('automation', case=False, na=False)
             df.loc[mask_auto, 'Predicted_Service_Tag'] = 'AUTO'
-            
-            # Rule: Configuration item containing 'Mavim' -> MVM (already covered above, but keeping for clarity)
+            print(f"[RULE] AUTO reassignment applied to {mask_auto.sum()} tickets")
+
+            # Optional redundancy for MVM (CI match)
             mask_mvm_ci = df['Configuration item'].str.contains('mavim', case=False, na=False)
             df.loc[mask_mvm_ci, 'Predicted_Service_Tag'] = 'MVM'
-            
+            print(f"[RULE] MVM (from CI) reassignment applied to {mask_mvm_ci.sum()} tickets")
+
         except Exception as e:
             print(f"Error applying business rules: {e}")
         
         return df
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Service Ticket Tag Classifier')
